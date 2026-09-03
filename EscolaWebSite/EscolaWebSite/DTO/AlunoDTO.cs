@@ -2,19 +2,13 @@ using System;
 
 namespace EscolaWebSite.DTO
 {
-    public enum StatusAluno
-    {
-        inativo = 0,
-        ativo = 1,
-    }
-
     public class AlunoDTO
     {
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Email { get; set; }
         public DateTime DataNascimento { get; set; }
-        public StatusAluno Ativo { get; set; }
+        public bool Ativo { get; set; }
         public DateTime DataCadastro { get; set; }
     }
 
@@ -30,7 +24,7 @@ namespace EscolaWebSite.DTO
         public string Nome { get; set; }
         public string Email { get; set; }
         public DateTime DataNascimento { get; set; }
-        public StatusAluno Ativo { get; set; }
+        public bool Ativo { get; set; }
     }
 
     public class FiltroAlunoDTO
