@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Web.Http;
 
-namespace EscolaAPI.Controllers
+namespace EscolaWebSite.Controllers
 {
     [RoutePrefix("")]
     public class HomeController : ApiController

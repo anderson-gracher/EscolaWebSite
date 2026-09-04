@@ -1,4 +1,4 @@
-#Simulador de matricula de alunos na escola
+## Simulador de matricula de alunos na escola
 
 ## Resumo
 
