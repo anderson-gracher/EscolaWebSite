@@ -35,7 +35,7 @@ gerenciamento de matriculas de alunos.
 - Listagem com vagas disponíveis
 - Cache em Memória com possibilidade de implemetar com REDIS (tratado via disponibilidade de recurso)
 
-#### Endpoints obrigatórios:
+#### Endpoints
    - GET /api/turmas -> lista as turmas com a quantidade de vagas restantes de cada uma
 
 ### Matrícula
@@ -74,10 +74,10 @@ git clone https://github.com/anderson-gracher/EscolaWebSite
   - Unity.WebAPI
   - EntityFramework
   - Microsoft.AspNet.Mvc;
-  - Microsoft.AspNet.WebApi
-  - Microsoft.AspNet.WebApi.Cors
+  - Microsoft.AspNet.WebApi  
   - Microsoft.AspNet.WebApi.WebHost
   - System.Web.Http
+  - System.Web.Http.Cors
   - Newtonsoft.Json
   - StackExchange.Redis
   - Moq  

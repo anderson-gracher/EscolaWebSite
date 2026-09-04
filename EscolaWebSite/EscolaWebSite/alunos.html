@@ -1,0 +1,618 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escola API - Lista de Alunos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-voltar {
+            background: #95a5a6;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+            .btn-voltar:hover {
+                background: #7f8c8d;
+            }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+            .filter-section input {
+                flex: 1;
+                min-width: 200px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            .filter-section button {
+                padding: 10px 25px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s;
+            }
+
+                .filter-section button:hover {
+                    background: #2980b9;
+                }
+
+            .filter-section .btn-limpar {
+                background: #95a5a6;
+            }
+
+                .filter-section .btn-limpar:hover {
+                    background: #7f8c8d;
+                }
+
+            .filter-section .btn-atualizar {
+                background: #27ae60;
+            }
+
+                .filter-section .btn-atualizar:hover {
+                    background: #229954;
+                }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-active {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .pagination button {
+                padding: 8px 20px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+
+                .pagination button:hover:not(:disabled) {
+                    background: #2980b9;
+                }
+
+                .pagination button:disabled {
+                    background: #bdc3c7;
+                    cursor: not-allowed;
+                }
+
+        .pagination-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #fde8e8;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .badge-total {
+            background: #3498db;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .debug-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow: auto;
+        }
+
+            .debug-box .success {
+                color: #27ae60;
+            }
+
+            .debug-box .error {
+                color: #e74c3c;
+            }
+
+            .debug-box .info {
+                color: #3498db;
+            }
+
+            .debug-box .warn {
+                color: #f39c12;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+            .empty-state .icon {
+                font-size: 48px;
+                margin-bottom: 10px;
+            }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 6px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+
+                .filter-section input {
+                    min-width: 100%;
+                }
+
+            h1 {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>📚 Lista de Alunos</span>
+            <div>
+                <span class="badge-total" id="totalBadge">0 alunos</span>
+                <a href="/" class="btn-voltar">⬅ Voltar</a>
+            </div>
+        </h1>
+
+        <div class="filter-section">
+            <input type="text" id="searchNome" placeholder="Buscar por nome..." />
+            <button id="btnSearch">🔍 Buscar</button>
+            <button id="btnClear" class="btn-limpar">🔄 Limpar</button>
+            <button id="btnRefresh" class="btn-atualizar">🔄 Atualizar</button>
+            <button id="btnDebug" style="background: #e67e22;">🐛 Debug</button>
+        </div>
+
+        <div id="loading" class="loading">⏳ Carregando alunos...</div>
+        <div id="error" class="error"></div>
+
+        <div id="content" style="display:none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Data Nascimento</th>
+                        <th>Status</th>
+                        <th>Data Cadastro</th>
+                    </tr>
+                </thead>
+                <tbody id="alunosTable">
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="pagination-info">
+                    Mostrando <span id="startCount">0</span> - <span id="endCount">0</span> de <span id="totalCount">0</span> alunos
+                </div>
+                <div>
+                    <button id="prevPage" disabled>◀ Anterior</button>
+                    <span style="margin: 0 15px; color: #7f8c8d;">Página <span id="currentPage">1</span></span>
+                    <button id="nextPage">Próximo ▶</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug Panel -->
+        <div id="debugPanel" style="display:none; margin-top: 20px;">
+            <h3>🐛 Debug Panel</h3>
+            <div id="debugContent" class="debug-box"></div>
+        </div>
+    </div>
+
+    <script>$(document).ready(function() {
+            let currentPage = 1;
+            let pageSize = 10;
+            let totalPages = 1;
+            let currentFilter = '';
+            let isLoading = false;
+            let debugVisible = false;
+
+            // Função de debug
+            function addDebug(message, type = 'info') {
+                const debugContent = $('#debugContent');
+                const timestamp = new Date().toLocaleTimeString();
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    info: 'ℹ️',
+                    warn: '⚠️'
+                };
+                debugContent.append(`<div class="${type}">[${timestamp}] ${icons[type] || '📌'} ${message}</div>`);
+                debugContent.scrollTop(debugContent[0].scrollHeight);
+            }
+
+            // Função para carregar alunos
+            function loadAlunos(page = 1, filter = '') {
+                if (isLoading) return;
+
+                isLoading = true;
+                $('#loading').show();
+                $('#content').hide();
+                $('#error').hide();
+
+                // Construir URL
+                let url = `/api/alunos?pagina=${page}&tamanho=${pageSize}`;
+                if (filter && filter.trim() !== '') {
+                    url += `&nome=${encodeURIComponent(filter.trim())}`;
+                }
+
+                addDebug(`🔍 Carregando: ${url}`, 'info');
+
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(response) {
+                        isLoading = false;
+                        $('#loading').hide();
+
+                        addDebug(`✅ Resposta recebida!`, 'success');
+                        addDebug(`📦 Response type: ${typeof response}`, 'info');
+                        addDebug(`📦 Response: ${JSON.stringify(response).substring(0, 200)}...`, 'info');
+
+                        // Verificar a estrutura da resposta
+                        if (!response) {
+                            addDebug(`❌ Response é null ou undefined`, 'error');
+                            showError('Resposta vazia da API');
+                            return;
+                        }
+
+                        // Log detalhado da estrutura
+                        console.log('✅ Resposta da API:', response);
+                        console.log('📊 Propriedades:', Object.keys(response));
+
+                        // 🔥 CORREÇÃO AQUI: Usando propriedades com MAIÚSCULAS
+                        const alunos = response.Alunos || response.alunos || [];
+                        const total = response.Total || response.total || 0;
+                        const pagina = response.Pagina || response.pagina || page;
+
+                        addDebug(`📊 Total: ${total} (propriedade: ${response.Total !== undefined ? 'Total' : 'total'})`, 'info');
+                        addDebug(`📋 Alunos: ${alunos.length} (propriedade: ${response.Alunos !== undefined ? 'Alunos' : 'alunos'})`, 'info');
+
+                        if (alunos.length === 0) {
+                            addDebug(`⚠️ Nenhum aluno encontrado`, 'warn');
+                            showEmptyState();
+                            return;
+                        }
+
+                        // Log do primeiro aluno para debug
+                        if (alunos.length > 0) {
+                            addDebug(`📝 Primeiro aluno: ${JSON.stringify(alunos[0])}`, 'info');
+                            console.log('📝 Primeiro aluno:', alunos[0]);
+                            console.log('🔑 Propriedades do aluno:', Object.keys(alunos[0]));
+                        }
+
+                        addDebug(`✅ ${alunos.length} alunos carregados`, 'success');
+
+                        // Calcular total de páginas
+                        totalPages = Math.ceil(total / pageSize);
+                        currentPage = pagina;
+
+                        // Renderizar tabela
+                        renderTable(alunos);
+                        renderPagination(total, pagina);
+
+                        // Atualizar badge
+                        $('#totalBadge').text(`${total} alunos`);
+
+                        // Mostrar conteúdo
+                        $('#content').show();
+                        $('#error').hide();
+
+                        addDebug(`✅ Renderização concluída!`, 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        isLoading = false;
+                        $('#loading').hide();
+
+                        const errorMsg = xhr.responseJSON?.message || xhr.responseText || error || 'Erro desconhecido';
+                        console.error('❌ Erro:', {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            response: xhr.responseText,
+                            error: error
+                        });
+
+                        addDebug(`❌ Erro: ${errorMsg}`, 'error');
+                        addDebug(`📡 Status: ${xhr.status}`, 'error');
+
+                        showError(`Erro ao carregar alunos: ${errorMsg}`);
+                    }
+                });
+            }
+
+            // Função para renderizar a tabela
+            function renderTable(alunos) {
+                const tableBody = $('#alunosTable');
+                tableBody.empty();
+
+                addDebug(`🔄 Renderizando ${alunos.length} alunos...`, 'info');
+
+                if (!alunos || alunos.length === 0) {
+                    tableBody.html(`
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <div class="icon">📭</div>
+                                    <p>Nenhum aluno encontrado</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+
+                let rowCount = 0;
+                alunos.forEach((aluno, index) => {
+                    try {
+                        // 🔥 CORREÇÃO AQUI: Usando propriedades com MAIÚSCULAS
+                        const id = aluno.Id || aluno.id || '-';
+                        const nome = aluno.Nome || aluno.nome || 'Sem nome';
+                        const email = aluno.Email || aluno.email || '-';
+                        const ativo = aluno.Ativo !== undefined ? aluno.Ativo : aluno.ativo;
+                        const dataNascimento = aluno.DataNascimento || aluno.dataNascimento;
+                        const dataCadastro = aluno.DataCadastro || aluno.dataCadastro;
+
+                        const statusClass = ativo ? 'status-active' : 'status-inactive';
+                        const statusText = ativo ? '✅ Ativo' : '❌ Inativo';
+
+                        // Formatar datas com segurança
+                        let dataNasc = '-';
+                        let dataCad = '-';
+
+                        try {
+                            if (dataNascimento) {
+                                dataNasc = new Date(dataNascimento).toLocaleDateString('pt-BR');
+                            }
+                            if (dataCadastro) {
+                                dataCad = new Date(dataCadastro).toLocaleString('pt-BR');
+                            }
+                        } catch (e) {
+                            console.warn('Erro ao formatar data:', e);
+                        }
+
+                        tableBody.append(`
+                            <tr>
+                                <td><strong>${id}</strong></td>
+                                <td><strong>${nome}</strong></td>
+                                <td>${email}</td>
+                                <td>${dataNasc}</td>
+                                <td class="${statusClass}">${statusText}</td>
+                                <td>${dataCad}</td>
+                            </tr>
+                        `);
+                        rowCount++;
+                    } catch (e) {
+                        console.error(`Erro ao renderizar aluno ${index}:`, e);
+                        addDebug(`❌ Erro no aluno ${index}: ${e.message}`, 'error');
+                    }
+                });
+
+                addDebug(`✅ ${rowCount} linhas renderizadas`, 'success');
+            }
+
+            // Função para renderizar a paginação
+            function renderPagination(total, page) {
+                const start = total > 0 ? ((page - 1) * pageSize) + 1 : 0;
+                const end = Math.min(page * pageSize, total);
+
+                $('#startCount').text(start);
+                $('#endCount').text(end);
+                $('#totalCount').text(total);
+                $('#currentPage').text(page);
+
+                $('#prevPage').prop('disabled', page <= 1);
+                $('#nextPage').prop('disabled', page >= totalPages);
+            }
+
+            // Função para mostrar erro
+            function showError(message) {
+                $('#error').text(`❌ ${message}`).show();
+                $('#content').hide();
+                addDebug(`❌ ${message}`, 'error');
+            }
+
+            // Função para mostrar estado vazio
+            function showEmptyState() {
+                const tableBody = $('#alunosTable');
+                tableBody.html(`
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <div class="icon">📭</div>
+                                <p>Nenhum aluno encontrado</p>
+                                <p style="font-size: 12px; color: #95a5a6; margin-top: 5px;">
+                                    Tente ajustar os filtros de busca
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+                $('#content').show();
+                $('#error').hide();
+                $('#totalBadge').text('0 alunos');
+                $('#startCount').text('0');
+                $('#endCount').text('0');
+                $('#totalCount').text('0');
+                addDebug(`📭 Estado vazio`, 'warn');
+            }
+
+            // Função para buscar
+            function search() {
+                const filter = $('#searchNome').val().trim();
+                currentFilter = filter;
+                loadAlunos(1, filter);
+            }
+
+            // Função para limpar busca
+            function clearSearch() {
+                $('#searchNome').val('');
+                currentFilter = '';
+                loadAlunos(1, '');
+            }
+
+            // Função para atualizar
+            function refresh() {
+                loadAlunos(currentPage, currentFilter);
+            }
+
+            // Função para toggle debug
+            function toggleDebug() {
+                debugVisible = !debugVisible;
+                if (debugVisible) {
+                    $('#debugPanel').show();
+                    $('#btnDebug').text('🔴 Fechar Debug');
+                    addDebug('🐛 Painel de debug ativado', 'info');
+                } else {
+                    $('#debugPanel').hide();
+                    $('#btnDebug').text('🐛 Debug');
+                }
+            }
+
+            // Event listeners
+            $('#btnSearch').click(search);
+            $('#btnClear').click(clearSearch);
+            $('#btnRefresh').click(refresh);
+            $('#btnDebug').click(toggleDebug);
+
+            $('#searchNome').keypress(function(e) {
+                if (e.which === 13) {
+                    search();
+                }
+            });
+
+            $('#prevPage').click(function() {
+                if (currentPage > 1) {
+                    loadAlunos(currentPage - 1, currentFilter);
+                }
+            });
+
+            $('#nextPage').click(function() {
+                if (currentPage < totalPages) {
+                    loadAlunos(currentPage + 1, currentFilter);
+                }
+            });
+
+            // Carregar dados iniciais
+            console.log('🚀 Inicializando alunos.html');
+            addDebug('🚀 Aplicação iniciada', 'info');
+            loadAlunos(1, '');
+        });</script>
+</body>
+</html>

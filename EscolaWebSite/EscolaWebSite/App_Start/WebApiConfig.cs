@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using System.Web.Http.Cors;
 using System.Web.Http;
 
 namespace EscolaWebSite.App_Start
@@ -8,9 +8,9 @@ namespace EscolaWebSite.App_Start
         public static void Register(HttpConfiguration config)
         {
             // Enable CORS
-            // var cors = new EnableCorsAttribute("*", "*", "*");
-            // config.EnableCors(cors);
-
+            var cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
+            
             // Web API routes
             config.MapHttpAttributeRoutes();
 

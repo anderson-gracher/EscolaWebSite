@@ -13,7 +13,7 @@ namespace EscolaWebSite.Controllers
         {
             // Redireciona para o index.html
             var response = Request.CreateResponse(HttpStatusCode.Redirect);
-            response.Headers.Location = new System.Uri("wwwroot/index.html", System.UriKind.Relative);
+            response.Headers.Location = new System.Uri("index.html", System.UriKind.Relative);
             return response;
         }
 
@@ -32,7 +32,7 @@ namespace EscolaWebSite.Controllers
                     Turmas = "/api/turmas",
                     Matriculas = "/api/matriculas",
                     Relatorios = "/api/relatorios/alunos-por-turma",
-                    Interface = "wwwroot/index.html"
+                    Interface = "/index.html",
                 }
             });
         }
