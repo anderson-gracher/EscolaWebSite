@@ -1,6 +1,6 @@
 using System;
 
-namespace EscolaWebSite.DTOs
+namespace EscolaWebSite.DTO
 {
     public class MatriculaDTO
     {
