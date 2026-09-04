@@ -1,30 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Net;
+using System.Net.Http;
+using System.Web.Http;
 
-namespace EscolaWebSite.Controllers
+namespace EscolaAPI.Controllers
 {
-    public class HomeController : Controller
+    [RoutePrefix("")]
+    public class HomeController : ApiController
     {
-        public ActionResult Index()
+        [HttpGet]
+        [Route("")]
+        public HttpResponseMessage Get()
         {
-            return View();
+            // Redireciona para o index.html
+            var response = Request.CreateResponse(HttpStatusCode.Redirect);
+            response.Headers.Location = new System.Uri("wwwroot/index.html", System.UriKind.Relative);
+            return response;
         }
 
-        public ActionResult About()
+        // Opção 2: Retornar o conteúdo do index.html diretamente
+        [HttpGet]
+        [Route("api-home")]
+        public IHttpActionResult GetApiInfo()
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return Ok(new
+            {
+                Message = "EscolaWebSite",
+                Version = "1.0",
+                Endpoints = new
+                {
+                    Alunos = "/api/alunos",
+                    Turmas = "/api/turmas",
+                    Matriculas = "/api/matriculas",
+                    Relatorios = "/api/relatorios/alunos-por-turma",
+                    Interface = "wwwroot/index.html"
+                }
+            });
         }
     }
 }

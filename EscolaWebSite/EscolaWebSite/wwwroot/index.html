@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escola API - Lista de Alunos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+            .filter-section input {
+                flex: 1;
+                min-width: 200px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            .filter-section button {
+                padding: 10px 25px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s;
+            }
+
+                .filter-section button:hover {
+                    background: #2980b9;
+                }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-active {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .status-inactive {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+        }
+
+            .pagination button {
+                padding: 8px 20px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+
+                .pagination button:hover:not(:disabled) {
+                    background: #2980b9;
+                }
+
+                .pagination button:disabled {
+                    background: #bdc3c7;
+                    cursor: not-allowed;
+                }
+
+        .pagination-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #fde8e8;
+            color: #c0392b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Sistema de Alunos</h1>
+
+        <div class="filter-section">
+            <input type="text" id="searchNome" placeholder="Buscar por nome..." />
+            <button id="btnSearch">🔍 Buscar</button>
+            <button id="btnClear">🔄 Limpar</button>
+        </div>
+
+        <div id="loading" class="loading">Carregando...</div>
+        <div id="error" class="error" style="display:none;"></div>
+
+        <div id="content" style="display:none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Data Nascimento</th>
+                        <th>Status</th>
+                        <th>Data Cadastro</th>
+                    </tr>
+                </thead>
+                <tbody id="alunosTable">
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <div class="pagination-info">
+                    Mostrando <span id="startCount">0</span> - <span id="endCount">0</span> de <span id="totalCount">0</span> alunos
+                </div>
+                <div>
+                    <button id="prevPage" disabled>◀ Anterior</button>
+                    <span style="margin: 0 15px; color: #7f8c8d;">Página <span id="currentPage">1</span></span>
+                    <button id="nextPage">Próximo ▶</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>let currentPage = 1;
+        let pageSize = 10;
+        let totalPages = 1;
+        let currentFilter = '';
+
+        function loadAlunos(page = 1, filter = '') {
+            $('#loading').show();
+            $('#content').hide();
+            $('#error').hide();
+
+            const url = `/api/alunos?pagina=${page}&tamanho=${pageSize}` + (filter ? `&nome=${encodeURIComponent(filter)}` : '');
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                success: function(response) {
+                    $('#loading').hide();
+                    $('#content').show();
+
+                    const alunos = response.alunos || [];
+                    const total = response.total || 0;
+                    totalPages = Math.ceil(total / pageSize);
+                    currentPage = page;
+
+                    const tableBody = $('#alunosTable');
+                    tableBody.empty();
+
+                    if (alunos.length === 0) {
+                        tableBody.html('<tr><td colspan="6" style="text-align:center; padding:30px; color:#7f8c8d;">Nenhum aluno encontrado</td></tr>');
+                    } else {
+                        alunos.forEach(aluno => {
+                            const statusClass = aluno.ativo ? 'status-active' : 'status-inactive';
+                            const statusText = aluno.ativo ? '✅ Ativo' : '❌ Inativo';
+                            const dataNasc = new Date(aluno.dataNascimento).toLocaleDateString('pt-BR');
+                            const dataCad = new Date(aluno.dataCadastro).toLocaleString('pt-BR');
+
+                            tableBody.append(`
+                                <tr>
+                                    <td>${aluno.id}</td>
+                                    <td><strong>${aluno.nome}</strong></td>
+                                    <td>${aluno.email}</td>
+                                    <td>${dataNasc}</td>
+                                    <td class="${statusClass}">${statusText}</td>
+                                    <td>${dataCad}</td>
+                                </tr>
+                            `);
+                        });
+                    }
+
+                    // Update pagination info
+                    const start = ((page - 1) * pageSize) + 1;
+                    const end = Math.min(page * pageSize, total);
+                    $('#startCount').text(total > 0 ? start : 0);
+                    $('#endCount').text(total > 0 ? end : 0);
+                    $('#totalCount').text(total);
+                    $('#currentPage').text(page);
+
+                    $('#prevPage').prop('disabled', page <= 1);
+                    $('#nextPage').prop('disabled', page >= totalPages);
+                },
+                error: function(xhr, status, error) {
+                    $('#loading').hide();
+                    $('#content').hide();
+                    $('#error').show().text(`❌ Erro ao carregar alunos: ${xhr.responseText || error}`);
+                    console.error('Erro:', xhr.responseText);
+                }
+            });
+        }
+
+        function search() {
+            const filter = $('#searchNome').val().trim();
+            currentFilter = filter;
+            loadAlunos(1, filter);
+        }
+
+        function clearSearch() {
+            $('#searchNome').val('');
+            currentFilter = '';
+            loadAlunos(1, '');
+        }
+
+        // Event listeners
+        $('#btnSearch').click(search);
+        $('#btnClear').click(clearSearch);
+
+        $('#searchNome').keypress(function(e) {
+            if (e.which === 13) {
+                search();
+            }
+        });
+
+        $('#prevPage').click(function() {
+            if (currentPage > 1) {
+                loadAlunos(currentPage - 1, currentFilter);
+            }
+        });
+
+        $('#nextPage').click(function() {
+            if (currentPage < totalPages) {
+                loadAlunos(currentPage + 1, currentFilter);
+            }
+        });
+
+        // Load initial data
+        $(document).ready(function() {
+            loadAlunos(1, '');
+        });</script>
+</body>
+</html>

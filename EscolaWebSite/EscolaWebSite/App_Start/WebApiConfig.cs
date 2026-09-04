@@ -1,12 +1,15 @@
-﻿using System.Web.Http;
-using System.Web.UI.WebControls;
+﻿using Microsoft.AspNetCore.Cors;
+using System.Web.Http;
 
-namespace EscolaWebSite
+namespace EscolaWebSite.App_Start
 {
     public static class WebApiConfig
     {
-        public static void Register(System.Web.Http.HttpConfiguration config)
+        public static void Register(HttpConfiguration config)
         {
+            // Enable CORS
+            // var cors = new EnableCorsAttribute("*", "*", "*");
+            // config.EnableCors(cors);
 
             // Web API routes
             config.MapHttpAttributeRoutes();
@@ -14,7 +17,7 @@ namespace EscolaWebSite
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = System.Web.Http.RouteParameter.Optional }
+                defaults: new { id = RouteParameter.Optional }
             );
 
             // Remove XML formatter, use JSON only
