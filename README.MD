@@ -2,8 +2,8 @@
 
 ## Resumo
 
-API Rest desenvolvida com .NET Framework 4.8, ASP.NET Web API, Dapper com banco de dados SQLServer para 
-gerenciamento de alunos 
+API Rest desenvolvida com .NET Framework 4.8, ASP.NET Web Application(.Net Framework), Dapper e com banco de dados SQLServer para 
+gerenciamento de matriculas de alunos.
 
 ## Requisitos Técnicos
 
@@ -22,9 +22,21 @@ gerenciamento de alunos
 - Atualizar aluno
 - Exclusão lógica (campo Ativo)
 
+#### Endpoints:
+
+1. CRUD de alunos
+   - GET /api/alunos -> lista paginada, com filtro opcional por nome
+   - GET /api/alunos/{id}
+   - POST /api/alunos
+   - PUT /api/alunos/{id}
+   - DELETE /api/alunos/{id} -> exclusão lógica (campo Ativo).
+
 ### Turmas
 - Listagem com vagas disponíveis
 - Cache em Memória com possibilidade de implemetar com REDIS (tratado via disponibilidade de recurso)
+
+#### Endpoints obrigatórios:
+   - GET /api/turmas -> lista as turmas com a quantidade de vagas restantes de cada uma
 
 ### Matrícula
 - Transações SQL, ou efetiva ou não inclui
@@ -33,8 +45,15 @@ gerenciamento de alunos
   - Aluno ativo
   - Aluno não matriculado duas vezes na mesma turma
 
+#### Endpoints:
+   - POST /api/matriculas -> recebe o id do aluno e o id da turma   
+
 ### Relatórios
+
 - Alunos por turma com SQL puro (JOIN, GROUP BY)
+
+#### Endpoints:
+   - GET /api/relatorios/alunos-por-turma
 
 ### Bônus Implementados
 - Cache em Memória com disponibilidade de implementar via Redis
@@ -64,4 +83,7 @@ git clone https://github.com/anderson-gracher/EscolaWebSite
   - Moq  
   - MSTest.TestFramework
 
-### 
+## License
+
+MIT - see [LICENSE](LICENSE).
+
